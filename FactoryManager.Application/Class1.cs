@@ -1,4 +1,4 @@
-﻿namespace FactoryManager.Aplication;
+﻿namespace FactoryManager.Application;
 
 public class Class1
 {

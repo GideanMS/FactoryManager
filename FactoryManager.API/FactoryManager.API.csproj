@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FactoryManager.Application\FactoryManager.Aplication.csproj" />
+    <ProjectReference Include="..\FactoryManager.Application\FactoryManager.Application.csproj" />
     <ProjectReference Include="..\FactoryManager.Infrastructure\FactoryManager.Infrastructure.csproj" />
   </ItemGroup>
 
