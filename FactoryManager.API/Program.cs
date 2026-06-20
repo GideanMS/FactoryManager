@@ -18,26 +18,9 @@ app.UseHttpsRedirection();
 
 app.MapGet("/machines", () =>
 {
-    var machines = new List<Machine>
-    {
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Basic Furnace",
-            ProductionPerMinute = 10,
-            IsActive = true
-        },
-
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Assembler MK-1",
-            ProductionPerMinute = 20,
-            IsActive = true
-        }
-    };
-
-    return machines;
+    var machine1 = new Machine("Machine 1", 10);
+    var machine2 = new Machine("Machine 2", 20);
+    return new[] { machine1, machine2 };
 });
 
 app.MapGet("/", () =>
