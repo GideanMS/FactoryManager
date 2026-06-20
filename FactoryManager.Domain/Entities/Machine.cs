@@ -2,10 +2,23 @@ namespace FactoryManager.Domain.Entities;
 
 public class Machine
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public int ProductionPerMinute { get; set; }
-    public bool IsActive { get; set; }
+    public Guid Id { get; private set; }
+    public string Name { get; private set; }
+    public int ProductionPerMinute { get; private set; }
+    public bool IsActive { get; private set; }
+
+// Objeto para o Entity Framework
+    private Machine()
+    {
+    }
+
+    public Machine(string name, int productionPerMinute)
+    {
+        Id = Guid.NewGuid();
+        Name = name;
+        ProductionPerMinute = productionPerMinute;
+        IsActive = false;
+    }
 
     public void Activate()
     {

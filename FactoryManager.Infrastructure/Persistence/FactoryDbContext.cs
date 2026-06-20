@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using FactoryManager.Domain.Entities;
 
 public class FactoryDbContext : DbContext
 {
@@ -15,4 +16,5 @@ public class FactoryDbContext : DbContext
     public DbSet<Machine> Machines => Set<Machine>();
 
     public DbSet<Recipe> Recipes => Set<Recipe>();
+    
 }
