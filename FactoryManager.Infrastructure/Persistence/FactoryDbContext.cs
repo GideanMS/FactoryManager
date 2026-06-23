@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using FactoryManager.Domain.Entities;
+namespace FactoryManager.Infrastructure.Persistence;
 
 public class FactoryDbContext : DbContext
 {
