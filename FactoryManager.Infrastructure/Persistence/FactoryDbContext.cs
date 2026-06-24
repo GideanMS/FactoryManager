@@ -17,5 +17,15 @@ public class FactoryDbContext : DbContext
     public DbSet<Machine> Machines => Set<Machine>();
 
     public DbSet<Recipe> Recipes => Set<Recipe>();
-    
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Recipe>()
+
+            .HasOne(r => r.Product)
+            .WithMany(p => p.Recipes)
+            .HasForeignKey(r => r.ProductId);
+    }
 }
