@@ -1,6 +1,14 @@
-@FactoryManager.API_HostAddress = http://localhost:5122
+@host = http://localhost:5122
 
-GET {{FactoryManager.API_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{host}}/machines
+Content-Type: application/json
+
+{
+    "name": "Furnace",
+    "productionPerMinute": 30
+}
 
 ###
+
+GET {{host}}/machines
+Accept: application/json

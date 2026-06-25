@@ -1,6 +1,11 @@
 using FactoryManager.Domain.Entities;
+using FactoryManager.Application.Interfaces;
+using FactoryManager.Infrastructure.Repositories;
 using FactoryManager.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using FactoryManager.Application.Services.Interfaces;
+using FactoryManager.Application.Services;
+using FactoryManager.Application.DTOs.Machines;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,9 @@ builder.Services.AddDbContext<FactoryDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddScoped<IMachineRepository, MachineRepository>();
+builder.Services.AddScoped<IMachineService, MachineService>();
+    
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,11 +30,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/machines", () =>
+app.MapGet("/machines", async (IMachineService machineService) =>
 {
-    var machine1 = new Machine("Machine 1", 10);
-    var machine2 = new Machine("Machine 2", 20);
-    return new[] { machine1, machine2 };
+    return await machineService.GetAllAsync();
+});
+
+app.MapPost("/machines", async (CreateMachineRequest request,IMachineService machineService) =>
+{
+    var machine =
+        await machineService.CreateAsync(request);
+
+    return Results.Created(
+        $"/machines/{machine.Id}",
+        machine);
 });
 
 app.MapGet("/", () =>

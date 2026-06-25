@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FactoryManager.Domain\FactoryManager.Domain.csproj" />
+    <ProjectReference Include="..\FactoryManager.Application\FactoryManager.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
