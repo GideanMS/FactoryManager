@@ -14,6 +14,7 @@ public class Machine
 
     public Machine(string name, int productionPerMinute)
     {
+        Validate(name, productionPerMinute);
         Id = Guid.NewGuid();
         Name = name;
         ProductionPerMinute = productionPerMinute;
@@ -28,5 +29,25 @@ public class Machine
     public void Deactivate()
     {
         IsActive = false;
+    }
+
+    public void UpdateInformation(string name, int productionPerMinute)
+    {
+        Validate(name, productionPerMinute);
+        Name = name;
+        ProductionPerMinute = productionPerMinute;
+    }
+
+    private static void Validate(string name, int productionPerMinute)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Machine name cannot be empty.");
+        }
+
+        if (productionPerMinute < 0)
+        {
+            throw new ArgumentException("Production cannot be negative.");
+        }
     }
 }

@@ -35,6 +35,30 @@ app.MapGet("/machines", async (IMachineService machineService) =>
     return await machineService.GetAllAsync();
 });
 
+app.MapGet("/machines/{id:guid}", async (Guid id, IMachineService machineService) =>
+{
+    var machine = await machineService.GetByIdAsync(id);
+
+    if (machine is null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(machine);
+});
+
+app.MapPut("/machines/{id:guid}", async (Guid id, UpdateMachineRequest request, IMachineService machineService) =>
+{
+    var machine = await machineService.UpdateAsync(id, request);
+
+    if (machine is null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(machine);
+});
+
 app.MapPost("/machines", async (CreateMachineRequest request,IMachineService machineService) =>
 {
     var machine =

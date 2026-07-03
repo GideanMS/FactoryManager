@@ -1,5 +1,6 @@
 @host = http://localhost:5122
 
+###
 POST {{host}}/machines
 Content-Type: application/json
 
@@ -9,6 +10,18 @@ Content-Type: application/json
 }
 
 ###
+PUT {{host}}/machines/{18c25f52-0b63-4729-ab60-e8c34ceb8441}
+Content-Type: application/json
 
+{
+    "name": "Steel Furnace",
+    "productionPerMinute": 50
+}
+
+###
 GET {{host}}/machines
+Accept: application/json
+
+###
+GET {{host}}/machines/{4278c1dc-3b06-4ee9-a26d-75a88773c608}
 Accept: application/json

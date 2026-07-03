@@ -30,6 +30,45 @@ public class MachineService : IMachineService
         };
     }
 
+    public async Task<MachineResponse?> GetByIdAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+        {
+            return null;
+        }
+
+        return new MachineResponse
+        {
+            Id = machine.Id,
+            Name = machine.Name,
+            ProductionPerMinute = machine.ProductionPerMinute,
+            IsActive = machine.IsActive
+        };
+    }
+
+    public async Task<MachineResponse?> UpdateAsync(Guid id, UpdateMachineRequest request)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+        {
+            throw new Exception("Machine not found.");
+        }
+
+        machine.UpdateInformation(request.Name, request.ProductionPerMinute);
+        await _repository.SaveChangesAsync();
+
+        return new MachineResponse
+        {
+            Id = machine.Id,
+            Name = machine.Name,
+            ProductionPerMinute = machine.ProductionPerMinute,
+            IsActive = machine.IsActive
+        };
+    }
+
     public async Task<List<MachineResponse>> GetAllAsync()
     {
         var machines = await _repository.GetAllAsync();
