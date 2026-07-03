@@ -21,13 +21,7 @@ public class MachineService : IMachineService
         await _repository.AddAsync(machine);
         await _repository.SaveChangesAsync();
 
-        return new MachineResponse
-        {
-            Id = machine.Id,
-            Name = machine.Name,
-            ProductionPerMinute = machine.ProductionPerMinute,
-            IsActive = machine.IsActive
-        };
+        return MachineMapper.ToResponse(machine);
     }
 
     public async Task<MachineResponse?> GetByIdAsync(Guid id)
@@ -39,13 +33,7 @@ public class MachineService : IMachineService
             return null;
         }
 
-        return new MachineResponse
-        {
-            Id = machine.Id,
-            Name = machine.Name,
-            ProductionPerMinute = machine.ProductionPerMinute,
-            IsActive = machine.IsActive
-        };
+        return MachineMapper.ToResponse(machine);
     }
 
     public async Task<MachineResponse?> UpdateAsync(Guid id, UpdateMachineRequest request)
@@ -60,13 +48,7 @@ public class MachineService : IMachineService
         machine.UpdateInformation(request.Name, request.ProductionPerMinute);
         await _repository.SaveChangesAsync();
 
-        return new MachineResponse
-        {
-            Id = machine.Id,
-            Name = machine.Name,
-            ProductionPerMinute = machine.ProductionPerMinute,
-            IsActive = machine.IsActive
-        };
+        return MachineMapper.ToResponse(machine);
     }
 
     public async Task<List<MachineResponse>> GetAllAsync()
