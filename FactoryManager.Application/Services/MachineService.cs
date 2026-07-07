@@ -62,4 +62,17 @@ public class MachineService : IMachineService
             IsActive = m.IsActive
         }).ToList();
     }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+            return false;
+        
+        _repository.Remove(machine);
+        await _repository.SaveChangesAsync();
+
+        return true;
+    }
 }

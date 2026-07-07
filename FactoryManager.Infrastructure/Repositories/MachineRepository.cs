@@ -33,4 +33,9 @@ public class MachineRepository : IMachineRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public void Remove(Machine machine)
+    {
+        _context.Machines.Remove(machine);
+    }
 }

@@ -8,4 +8,5 @@ public interface IMachineRepository
     Task<Machine?> GetByIdAsync(Guid id);
     Task AddAsync(Machine machine);
     Task SaveChangesAsync();
+    void Remove(Machine machine);
 }
