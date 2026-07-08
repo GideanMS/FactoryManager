@@ -1,3 +1,5 @@
+using FactoryManager.Domain.Exceptions;
+
 namespace FactoryManager.Domain.Entities;
 
 public class Machine
@@ -42,12 +44,12 @@ public class Machine
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentException("Machine name cannot be empty.");
+            throw new DomainException("Machine name cannot be empty.");
         }
 
         if (productionPerMinute < 0)
         {
-            throw new ArgumentException("Production cannot be negative.");
+            throw new DomainException("Production cannot be negative.");
         }
     }
 }

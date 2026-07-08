@@ -29,9 +29,7 @@ public class MachineService : IMachineService
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-        {
             return null;
-        }
 
         return MachineMapper.ToResponse(machine);
     }
@@ -41,9 +39,7 @@ public class MachineService : IMachineService
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-        {
             throw new Exception("Machine not found.");
-        }
 
         machine.UpdateInformation(request.Name, request.ProductionPerMinute);
         await _repository.SaveChangesAsync();
@@ -54,13 +50,9 @@ public class MachineService : IMachineService
     public async Task<List<MachineResponse>> GetAllAsync()
     {
         var machines = await _repository.GetAllAsync();
-        return machines.Select(m => new MachineResponse
-        {
-            Id = m.Id,
-            Name = m.Name,
-            ProductionPerMinute = m.ProductionPerMinute,
-            IsActive = m.IsActive
-        }).ToList();
+        return machines
+        .Select(MachineMapper.ToResponse)
+        .ToList();
     }
 
     public async Task<bool> DeleteAsync(Guid id)
