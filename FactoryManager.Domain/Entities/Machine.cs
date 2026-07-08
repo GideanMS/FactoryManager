@@ -49,7 +49,7 @@ public class Machine
 
         if (productionPerMinute < 0)
         {
-            throw new DomainException("Production cannot be negative.");
+            throw new DomainException("Production per minute cannot be negative.");
         }
     }
 }

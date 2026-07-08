@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using FactoryManager.Application.Services.Interfaces;
 using FactoryManager.Application.Services;
 using FactoryManager.Application.DTOs.Machines;
+using FluentValidation;
+using FactoryManager.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,9 @@ builder.Services.AddDbContext<FactoryDbContext>(options =>
 
 builder.Services.AddScoped<IMachineRepository, MachineRepository>();
 builder.Services.AddScoped<IMachineService, MachineService>();
-    
+builder.Services.AddScoped<IValidator<CreateMachineRequest>, CreateMachineValidator>();
+builder.Services.AddScoped<IValidator<UpdateMachineRequest>, UpdateMachineValidator>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

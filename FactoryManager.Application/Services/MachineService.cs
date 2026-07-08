@@ -2,20 +2,31 @@ using FactoryManager.Application.Interfaces;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Domain.Entities;
 using FactoryManager.Application.Services.Interfaces;
+using FactoryManager.Domain.Exceptions;
+using FluentValidation;
 
 namespace FactoryManager.Application.Services;
 
 public class MachineService : IMachineService
 {
     private readonly IMachineRepository _repository;
+    private readonly IValidator<CreateMachineRequest> _createValidator;
+    private readonly IValidator<UpdateMachineRequest> _updateValidator;
 
-    public MachineService(IMachineRepository repository)
+    public MachineService(IMachineRepository repository, IValidator<CreateMachineRequest> createValidator, IValidator<UpdateMachineRequest> updateValidator)
     {
         _repository = repository;
+        _createValidator = createValidator;
+        _updateValidator = updateValidator;
     }
 
     public async Task<MachineResponse> CreateAsync(CreateMachineRequest request)
     {
+        var validationResult = await _createValidator.ValidateAsync(request);
+
+        if (!validationResult.IsValid)
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
+
         var machine = new Machine(request.Name, request.ProductionPerMinute);
 
         await _repository.AddAsync(machine);
@@ -39,7 +50,12 @@ public class MachineService : IMachineService
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-            throw new Exception("Machine not found.");
+            throw new DomainException("Machine not found.");
+
+        var validationResult = await _updateValidator.ValidateAsync(request);
+
+        if (!validationResult.IsValid)
+            throw new DomainException(validationResult.Errors.First().ErrorMessage);
 
         machine.UpdateInformation(request.Name, request.ProductionPerMinute);
         await _repository.SaveChangesAsync();
