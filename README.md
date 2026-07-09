@@ -27,8 +27,6 @@ A ideia desse projeto é melhorar minhas habilidades de desenvolvimento pratican
 
 O projeto segue uma arquitetura em camadas:
 
-## Architecture
-
 ```text
 FactoryManager
 │
