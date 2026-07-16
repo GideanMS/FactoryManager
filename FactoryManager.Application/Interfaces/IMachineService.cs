@@ -8,5 +8,5 @@ public interface IMachineService
     Task<MachineResponse?> GetByIdAsync(Guid id);
     Task<MachineResponse?> UpdateAsync(Guid id, UpdateMachineRequest request);
     Task<bool> DeleteAsync(Guid id);
-    Task<List<MachineResponse>> GetAllAsync();
+    Task<List<MachineResponse>> GetAllAsync(MachineQueryParameters query);
 }

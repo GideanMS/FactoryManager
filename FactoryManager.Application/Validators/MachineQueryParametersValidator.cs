@@ -4,4 +4,8 @@ namespace FactoryManager.Application.DTOs.Machines;
 
 public class MachineQueryParametersValidator : QueryParametersValidator<MachineQueryParameters>
 {
+    public MachineQueryParametersValidator()
+    {
+        Include(new QueryParametersValidator<MachineQueryParameters>());
+    }
 }

@@ -7,9 +7,9 @@ public static class MachineEndpoints
 {
     public static void MapMachineEndpoints(this WebApplication app)
     {
-        app.MapGet("/machines", async (IMachineService machineService) =>
+        app.MapGet("/machines", async (MachineQueryParameters query, IMachineService service) =>
         {
-            var machines = await machineService.GetAllAsync();
+            var machines = await service.GetAllAsync(query);
             return Results.Ok(machines);
         })
         .WithName("GetAllMachines")

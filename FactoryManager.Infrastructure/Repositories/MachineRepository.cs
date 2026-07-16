@@ -1,3 +1,4 @@
+using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Interfaces;
 using FactoryManager.Domain.Entities;
 using FactoryManager.Infrastructure.Persistence;
@@ -14,9 +15,14 @@ public class MachineRepository : IMachineRepository
         _context = context;
     }
 
-    public async Task<List<Machine>> GetAllAsync()
+    public async Task<List<Machine>> GetAllAsync(MachineQueryParameters query)
     {
-        return await _context.Machines.ToListAsync();
+        return await _context.Machines
+        .AsNoTracking()
+        .OrderBy(machine => machine.Name)
+        .Skip(query.Offset)
+        .Take(query.PageSize)
+        .ToListAsync();
     }
 
     public async Task<Machine?> GetByIdAsync(Guid id)

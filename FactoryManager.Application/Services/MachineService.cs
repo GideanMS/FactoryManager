@@ -63,9 +63,9 @@ public class MachineService : IMachineService
         return MachineMapper.ToResponse(machine);
     }
 
-    public async Task<List<MachineResponse>> GetAllAsync()
+    public async Task<List<MachineResponse>> GetAllAsync(MachineQueryParameters query)
     {
-        var machines = await _repository.GetAllAsync();
+        var machines = await _repository.GetAllAsync(query);
         return machines
         .Select(MachineMapper.ToResponse)
         .ToList();
