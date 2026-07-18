@@ -4,6 +4,7 @@ using FactoryManager.Domain.Entities;
 using FactoryManager.Application.Services.Interfaces;
 using FactoryManager.Domain.Exceptions;
 using FluentValidation;
+using FactoryManager.Application.Common.Pagination;
 
 namespace FactoryManager.Application.Services;
 
@@ -63,12 +64,11 @@ public class MachineService : IMachineService
         return MachineMapper.ToResponse(machine);
     }
 
-    public async Task<List<MachineResponse>> GetAllAsync(MachineQueryParameters query)
+    public async Task<PagedResult<MachineResponse>> GetAllAsync(MachineQueryParameters query)
     {
-        var machines = await _repository.GetAllAsync(query);
-        return machines
-        .Select(MachineMapper.ToResponse)
-        .ToList();
+        var PagedMachines = await _repository.GetAllAsync(query);
+
+        return PagedMachines.Map(MachineMapper.ToResponse);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

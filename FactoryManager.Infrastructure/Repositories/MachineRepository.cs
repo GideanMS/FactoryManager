@@ -1,3 +1,4 @@
+using FactoryManager.Application.Common.Pagination;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Interfaces;
 using FactoryManager.Domain.Entities;
@@ -15,14 +16,23 @@ public class MachineRepository : IMachineRepository
         _context = context;
     }
 
-    public async Task<List<Machine>> GetAllAsync(MachineQueryParameters query)
+    public async Task<PagedResult<Machine>> GetAllAsync(MachineQueryParameters query)
     {
-        return await _context.Machines
-        .AsNoTracking()
-        .OrderBy(machine => machine.Name)
-        .Skip(query.Offset)
-        .Take(query.PageSize)
-        .ToListAsync();
+        var queryable = _context.Machines.AsNoTracking();
+
+        var totalCount = await queryable.CountAsync();
+
+        var items = await queryable
+            .OrderBy(machine => machine.Name)
+            .Skip(query.Offset)
+            .Take(query.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<Machine>(
+            items, 
+            query.Page, 
+            query.PageSize,
+            totalCount);
     }
 
     public async Task<Machine?> GetByIdAsync(Guid id)

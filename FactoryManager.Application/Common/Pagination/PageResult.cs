@@ -1,6 +1,6 @@
 namespace FactoryManager.Application.Common.Pagination;
 
-public sealed class PageResult<T>
+public sealed class PagedResult<T>
 {
     public IReadOnlyList<T> Items {get;}
     public int CurrentPage {get;}
@@ -10,24 +10,24 @@ public sealed class PageResult<T>
     public bool HasNextPage => CurrentPage < TotalPages;
     public bool HasPreviousPage => CurrentPage > 1;
 
-    public PageResult <TResult> Map<TResult>(Func<T, TResult> mapper)
+    public PagedResult <TResult> Map<TResult>(Func<T, TResult> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
-        return new PageResult<TResult>(
+        return new PagedResult<TResult>(
             Items.Select(mapper).ToList(),
             CurrentPage,
             PageSize,
             TotalCount);
     }
 
-    public PageResult(IReadOnlyList<T> items, int currentPage, int pageSize, int totalCount)
+    public PagedResult(IReadOnlyList<T> items, int currentPage, int pageSize, int totalCount)
     {
         ArgumentNullException.ThrowIfNull(items);
 
-        if (currentPage <= 1)
+        if (currentPage < 1)
             throw new ArgumentOutOfRangeException(nameof(currentPage));
-        if (pageSize <= 1)
+        if (pageSize < 1)
             throw new ArgumentOutOfRangeException(nameof(pageSize));
         if (totalCount < 0)
             throw new ArgumentOutOfRangeException(nameof(totalCount));
