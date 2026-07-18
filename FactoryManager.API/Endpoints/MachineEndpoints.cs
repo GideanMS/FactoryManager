@@ -1,3 +1,4 @@
+using FactoryManager.Application.Common.Pagination;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Services.Interfaces;
 
@@ -7,7 +8,7 @@ public static class MachineEndpoints
 {
     public static void MapMachineEndpoints(this WebApplication app)
     {
-        app.MapGet("/machines", async (MachineQueryParameters query, IMachineService service) =>
+        app.MapGet("/machines", async ([AsParameters] MachineQueryParameters query, IMachineService service) =>
         {
             var machines = await service.GetAllAsync(query);
             return Results.Ok(machines);
@@ -15,7 +16,7 @@ public static class MachineEndpoints
         .WithName("GetAllMachines")
         .WithSummary("Gets all machines")
         .WithDescription("Retrieves a list of all production machines from the database")
-        .Produces<IEnumerable<MachineResponse>>(StatusCodes.Status200OK);
+        .Produces<PagedResult<MachineResponse>>(StatusCodes.Status200OK);
 
         app.MapGet("/machines/{id:guid}", async (Guid id, IMachineService machineService) =>
         {
