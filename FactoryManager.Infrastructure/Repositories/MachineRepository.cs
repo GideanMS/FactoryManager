@@ -20,25 +20,9 @@ public class MachineRepository : IMachineRepository
     {
         var queryable = _context.Machines.AsNoTracking();
 
-        if (!string.IsNullOrEmpty(query.Name))
-        {
-            queryable = queryable.Where(machine => machine.Name.Contains(query.Name));
-        }
+        queryable = queryable.ApplyFilters(query);
         
-        if (query.IsActive.HasValue)
-        {
-            queryable = queryable.Where(machine => machine.IsActive == query.IsActive.Value);
-        }
-
-        if (query.MinProduction.HasValue)
-        {
-            queryable = queryable.Where(machine => machine.ProductionPerMinute >= query.MinProduction.Value);
-        }
-        
-        if (query.MaxProduction.HasValue)
-        {
-            queryable = queryable.Where(machine => machine.ProductionPerMinute <= query.MaxProduction.Value);
-        }
+        queryable = queryable.ApplySorting(query);
 
         var totalCount = await queryable.CountAsync();
 
