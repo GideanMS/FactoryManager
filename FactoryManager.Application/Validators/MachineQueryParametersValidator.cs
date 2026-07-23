@@ -1,3 +1,4 @@
+using FactoryManager.Application.Common.Sorting;
 using FactoryManager.Application.Validators;
 using FluentValidation;
 
@@ -18,5 +19,13 @@ public class MachineQueryParametersValidator : QueryParametersValidator<MachineQ
         RuleFor(x => x)
             .Must(x => !x.MinProduction.HasValue || !x.MaxProduction.HasValue || x.MinProduction <= x.MaxProduction)
             .WithMessage("MinProduction must be less than or equal to MaxProduction");
+
+        RuleFor(x => x.SortBy)
+            .Must(sortBy => string.IsNullOrWhiteSpace(sortBy) || MachineSortExpressions.SortExpressions.ContainsKey(sortBy.ToLowerInvariant()))
+            .WithMessage("Invalid sorting field.");
+
+        RuleFor(x => x.SortDirection)
+            .IsInEnum()
+            .WithMessage("Invalid sorting direction.");
     }
 }

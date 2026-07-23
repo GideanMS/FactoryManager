@@ -36,7 +36,7 @@ public static class MachineQueryableExtensions
             return query.OrderBy(machine => machine.Name);
         }
 
-        if (!MachineSortExpressions.SortExpressions.TryGetValue(parameters.SortBy.ToLower(), out var sortExpression))
+        if (!MachineSortExpressions.SortExpressions.TryGetValue(parameters.SortBy.ToLowerInvariant(), out var sortExpression))
         {
             return query.OrderBy(machine => machine.Name);
         }
