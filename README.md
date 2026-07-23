@@ -280,8 +280,8 @@ O objetivo do FactoryManager não é apenas implementar funcionalidades, mas ser
 * [x] Repository Pattern
 * [x] Exception Middleware
 * [x] Paginação
-* [ ] Filtros
-* [ ] Ordenação dinâmica
+* [x] Filtros
+* [x] Ordenação dinâmica
 * [ ] ProblemDetails
 * [ ] CRUD de Produtos
 * [ ] CRUD de Recursos
@@ -291,7 +291,7 @@ O objetivo do FactoryManager não é apenas implementar funcionalidades, mas ser
 * [ ] Refresh Token
 * [ ] Roles e Authorization
 * [ ] Docker
-* [ ] Testes Unitários
+* [x] Testes Unitários
 * [ ] Testes de Integração
 
 ---
