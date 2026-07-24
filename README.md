@@ -292,7 +292,7 @@ O objetivo do FactoryManager não é apenas implementar funcionalidades, mas ser
 * [ ] Roles e Authorization
 * [ ] Docker
 * [x] Testes Unitários
-* [ ] Testes de Integração
+* [x] Testes de Integração
 
 ---
 
