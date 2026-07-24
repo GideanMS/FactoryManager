@@ -21,11 +21,7 @@ public class FactoryDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Recipe>()
-
-            .HasOne(r => r.Product)
-            .WithMany(p => p.Recipes)
-            .HasForeignKey(r => r.ProductId);
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(FactoryDbContext).Assembly);
     }
 }
