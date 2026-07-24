@@ -2,13 +2,17 @@ namespace FactoryManager.Application.Common.Pagination;
 
 public sealed class PagedResult<T>
 {
-    public IReadOnlyList<T> Items {get;}
+    public IReadOnlyList<T> Items {get; private set; } = [];
     public int CurrentPage {get;}
     public int PageSize {get;}
     public int TotalCount {get;}
     public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
     public bool HasNextPage => CurrentPage < TotalPages;
     public bool HasPreviousPage => CurrentPage > 1;
+
+    private PagedResult()
+    {
+    }
 
     public PagedResult <TResult> Map<TResult>(Func<T, TResult> mapper)
     {
