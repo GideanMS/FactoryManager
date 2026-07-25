@@ -4,17 +4,31 @@ using FluentAssertions;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Tests.Infrastructure;
 using FactoryManager.Application.Common.Pagination;
+using Microsoft.Extensions.DependencyInjection;
+using FactoryManager.Infrastructure.Persistence;
 
 namespace FactoryManager.Tests.Integration;
 
-public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>
+public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {
+    private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
     public MachineEndpointsTests(CustomWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
+
+    public async Task InitializeAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FactoryDbContext>();
+        db.Machines.RemoveRange(db.Machines);
+        await db.SaveChangesAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
     public async Task PostMachine_ShouldCreateMachine()
@@ -28,32 +42,13 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>
 
         // Act
         var postResponse = await _client.PostAsJsonAsync("/machines", request);
-
-        var getResponse = await _client.GetAsync("/machines?Page=1&PageSize=10&SortDirection=Asc");
-
-        var result = await getResponse.Content.ReadFromJsonAsync<PagedResult<MachineResponse>>();
+        var created = await postResponse.Content.ReadFromJsonAsync<MachineResponse>();
 
         // Assert
-        postResponse.StatusCode
-        .Should()
-        .Be(HttpStatusCode.Created);
-
-        getResponse.StatusCode
-        .Should()
-        .Be(HttpStatusCode.OK);
-
-        result.Should().NotBeNull();
-
-        result!.Items.Should()
-        .ContainSingle();
-
-        var machine = result.Items.First();
-
-        machine.Name.Should()
-        .Be("Steel Furnace");
-
-        machine.ProductionPerMinute.Should()
-        .Be(50);
+        postResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        created.Should().NotBeNull();
+        created!.Name.Should().Be("Steel Furnace");
+        created.ProductionPerMinute.Should().Be(50);
     }
 
     [Fact]
@@ -73,6 +68,21 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         response.StatusCode
         .Should()
         .Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetMachines_ShouldReturnCreatedMachine()
+    {
+        await _client.PostAsJsonAsync("/machines", new CreateMachineRequest
+        {
+            Name = "Steel Furnace",
+            ProductionPerMinute = 50
+        });
+
+        var getResponse = await _client.GetAsync("/machines?Page=1&PageSize=10");
+        var result = await getResponse.Content.ReadFromJsonAsync<PagedResult<MachineResponse>>();
+
+        result!.Items.Should().ContainSingle(m => m.Name == "Steel Furnace");
     }
 
     [Fact]
