@@ -368,7 +368,7 @@ https://localhost:7171/swagger
 * [ ] JWT Authentication
 * [ ] Refresh Token
 * [ ] Roles e Authorization
-* [ ] Docker
+* [x] Docker
 * [ ] Deploy (Azure / Railway)
 * [ ] CI/CD (GitHub Actions)
 
