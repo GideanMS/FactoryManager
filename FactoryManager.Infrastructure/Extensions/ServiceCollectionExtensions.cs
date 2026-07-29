@@ -13,7 +13,14 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<FactoryDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null
+                )
+            );
         });
 
         services.AddScoped<IMachineRepository, MachineRepository>();

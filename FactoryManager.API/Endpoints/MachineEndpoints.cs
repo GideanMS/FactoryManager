@@ -1,6 +1,7 @@
 using FactoryManager.Application.Common.Pagination;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Services.Interfaces;
+using FactoryManager.API.Filters;
 
 namespace FactoryManager.API.Endpoints;
 
@@ -49,7 +50,8 @@ public static class MachineEndpoints
         .WithDescription("Creates a new production machine and stores it in database")    
         .Produces<MachineResponse>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status500InternalServerError);
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
         
 
         app.MapPut("/machines/{id:guid}", async (Guid id, UpdateMachineRequest request, IMachineService machineService) =>
@@ -66,7 +68,8 @@ public static class MachineEndpoints
         .WithDescription("Updates the details of an existing production machine in the database")
         .Produces<MachineResponse>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status500InternalServerError);
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
 
         app.MapDelete("/machines/{id:guid}", async (Guid id, IMachineService machineService) =>
         {
@@ -82,6 +85,7 @@ public static class MachineEndpoints
         .WithDescription("Deletes a machine from the database using its unique identifier")
         .Produces(StatusCodes.Status204NoContent)
         .Produces(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status500InternalServerError);
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
     }
 }

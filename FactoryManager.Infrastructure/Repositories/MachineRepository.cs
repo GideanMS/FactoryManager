@@ -29,13 +29,13 @@ public class MachineRepository : IMachineRepository
         var items = await queryable
             .OrderBy(machine => machine.Name)
             .Skip(query.Offset)
-            .Take(query.PageSize)
+            .Take(query.PageSize ?? 10)
             .ToListAsync();
 
         return new PagedResult<Machine>(
             items, 
-            query.Page, 
-            query.PageSize,
+            query.Page ?? 1, 
+            query.PageSize ?? 10,
             totalCount);
     }
 
