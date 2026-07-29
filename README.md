@@ -1,6 +1,8 @@
 # 🏭 FactoryManager
 
 > **FactoryManager** é uma API REST desenvolvida em **ASP.NET Core (.NET 9)** com foco em demonstrar boas práticas de desenvolvimento backend utilizadas no mercado. O projeto vai além de um CRUD tradicional, aplicando conceitos de arquitetura em camadas, Clean Code, SOLID e padrões de projeto para construir uma base escalável e de fácil manutenção.
+>
+> Este é um projeto de estudo incremental: novas funcionalidades são adicionadas continuamente, sempre priorizando a solidez arquitetural antes da expansão de escopo.
 
 ---
 
@@ -14,6 +16,7 @@
 * FluentValidation
 * Swagger / OpenAPI (Swashbuckle)
 * Dependency Injection
+* xUnit, Moq, FluentAssertions (testes)
 * Git & GitHub
 
 ---
@@ -93,14 +96,25 @@ Nenhuma regra de negócio é implementada aqui.
 
 ---
 
-# ✨ Funcionalidades implementadas
+# ✨ Escopo atual do projeto
 
-## Máquinas
+O domínio foi desenhado para um sistema completo de gerenciamento de fábrica (máquinas, produtos, recursos, receitas e usuários), mas **nem todos os módulos estão implementados de ponta a ponta ainda**. Abaixo está o estado real de cada um:
+
+| Módulo    | Domain (entidade) | Application (DTO/Service) | API (endpoints) | Status               |
+| --------- | :----------------: | :------------------------: | :---------------: | --------------------- |
+| Machines  | ✅                  | ✅                          | ✅                 | **Completo**           |
+| Products  | ✅                  | ⏳                          | ⏳                 | Modelado, em desenvolvimento |
+| Resources | ✅                  | ⏳                          | ⏳                 | Modelado, em desenvolvimento |
+| Recipes   | ✅                  | ⏳                          | ⏳                 | Modelado, em desenvolvimento |
+| Users     | ✅                  | ⏳                          | ⏳                 | Modelado, em desenvolvimento |
+
+## Machines (módulo completo)
 
 * CRUD completo
 * Validação de entrada
 * Paginação
-* Ordenação por nome
+* Filtros
+* Ordenação dinâmica
 * DTOs para entrada e saída
 * Mapeamento entre entidades e DTOs
 
@@ -151,6 +165,38 @@ A paginação foi construída utilizando:
 
 ---
 
+# ✅ Testes
+
+O projeto conta com testes automatizados cobrindo o módulo de Machines, usando uma stack de testes moderna:
+
+* **xUnit** como framework de testes
+* **Moq** para mocks de dependências
+* **FluentAssertions** para assertions mais legíveis
+* **Microsoft.AspNetCore.Mvc.Testing** (`WebApplicationFactory`) para testes de integração ponta a ponta
+* **SQLite in-memory** como banco de dados isolado para os testes de integração, evitando dependência do SQL Server local
+
+## Testes unitários (`FactoryManager.Tests/Services`)
+
+Cobrem a camada de `MachineService`, incluindo:
+
+* Busca de máquina existente e inexistente
+* Criação de máquina com validação
+
+## Testes de integração (`FactoryManager.Tests/Integration`)
+
+Sobem a aplicação real via `CustomWebApplicationFactory` e testam o comportamento HTTP completo, incluindo:
+
+* Criação de máquina com sucesso (`201 Created`)
+* Rejeição de requisição inválida (`400 Bad Request`)
+
+Para rodar os testes:
+
+```bash
+dotnet test
+```
+
+---
+
 # 📂 Estrutura do projeto
 
 ```text
@@ -173,13 +219,21 @@ FactoryManager
 │
 ├── FactoryManager.Domain
 │   ├── Entities
-│   └── Exceptions
+│   ├── Enums
+│   ├── Exceptions
+│   └── ValueObjects
 │
-└── FactoryManager.Infrastructure
-    ├── Extensions
-    ├── Persistence
-    ├── Repositories
-    └── Migrations
+├── FactoryManager.Infrastructure
+│   ├── Extensions
+│   ├── Persistence
+│   ├── Repositories
+│   └── Migrations
+│
+└── FactoryManager.Tests
+    ├── Builders
+    ├── Infrastructure
+    ├── Services
+    └── Integration
 ```
 
 ---
@@ -202,6 +256,7 @@ FactoryManager
 * Programação Assíncrona (`async/await`)
 * Paginação reutilizável
 * Tratamento global de exceções
+* Testes unitários e de integração automatizados
 
 ---
 
@@ -210,12 +265,12 @@ FactoryManager
 ## Machines
 
 | Método | Endpoint         | Descrição                    |
-| ------ | ---------------- | ---------------------------- |
-| GET    | `/machines`      | Lista máquinas com paginação |
-| GET    | `/machines/{id}` | Obtém uma máquina pelo ID    |
-| POST   | `/machines`      | Cria uma nova máquina        |
-| PUT    | `/machines/{id}` | Atualiza uma máquina         |
-| DELETE | `/machines/{id}` | Remove uma máquina           |
+| ------ | ---------------- | ----------------------------- |
+| GET    | `/machines`      | Lista máquinas com paginação  |
+| GET    | `/machines/{id}` | Obtém uma máquina pelo ID     |
+| POST   | `/machines`      | Cria uma nova máquina         |
+| PUT    | `/machines/{id}` | Atualiza uma máquina          |
+| DELETE | `/machines/{id}` | Remove uma máquina            |
 
 ---
 
@@ -259,16 +314,37 @@ Resposta:
 
 ---
 
-# 🎯 Objetivos do projeto
+# ▶️ Como executar o projeto
 
-O objetivo do FactoryManager não é apenas implementar funcionalidades, mas servir como um projeto de estudo para aplicar práticas utilizadas em projetos profissionais, como:
+## Pré-requisitos
 
-* Arquitetura em camadas
-* Organização de código
-* Escalabilidade
-* Manutenibilidade
-* Baixo acoplamento
-* Alta coesão
+* [.NET 9 SDK](https://dotnet.microsoft.com/download)
+* SQL Server LocalDB (incluso no Visual Studio) ou uma instância SQL Server acessível
+
+## Passos
+
+```bash
+# Clonar o repositório
+git clone https://github.com/GideanMS/FactoryManager.git
+cd FactoryManager
+
+# Restaurar dependências
+dotnet restore
+
+# Aplicar as migrations e criar o banco de dados
+dotnet ef database update --project FactoryManager.Infrastructure --startup-project FactoryManager.API
+
+# Rodar a API
+dotnet run --project FactoryManager.API
+```
+
+A API sobe em `https://localhost:7171` (ou `http://localhost:5122`). O Swagger fica disponível em:
+
+```
+https://localhost:7171/swagger
+```
+
+> A string de conexão padrão usa SQL Server LocalDB (`appsettings.json`). Se estiver usando outra instância de SQL Server, ajuste `ConnectionStrings:DefaultConnection` antes de rodar as migrations.
 
 ---
 
@@ -282,6 +358,8 @@ O objetivo do FactoryManager não é apenas implementar funcionalidades, mas ser
 * [x] Paginação
 * [x] Filtros
 * [x] Ordenação dinâmica
+* [x] Testes Unitários
+* [x] Testes de Integração
 * [ ] ProblemDetails
 * [ ] CRUD de Produtos
 * [ ] CRUD de Recursos
@@ -291,8 +369,8 @@ O objetivo do FactoryManager não é apenas implementar funcionalidades, mas ser
 * [ ] Refresh Token
 * [ ] Roles e Authorization
 * [ ] Docker
-* [x] Testes Unitários
-* [x] Testes de Integração
+* [ ] Deploy (Azure / Railway)
+* [ ] CI/CD (GitHub Actions)
 
 ---
 
