@@ -1,4 +1,4 @@
-namespace FactoryManager.API.Filters;
+namespace FactoryManager.API.Extensions;
 
 public static class RouteHandlerBuilderExtensions
 {
