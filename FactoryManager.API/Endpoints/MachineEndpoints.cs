@@ -2,6 +2,7 @@ using FactoryManager.Application.Common.Pagination;
 using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Services.Interfaces;
 using FactoryManager.API.Filters;
+using FactoryManager.API.Extensions;
 
 namespace FactoryManager.API.Endpoints;
 
