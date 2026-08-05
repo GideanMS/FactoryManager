@@ -1,8 +1,31 @@
 # 🏭 FactoryManager
 
+![CI](https://github.com/GideanMS/FactoryManager/actions/workflows/ci.yml/badge.svg)
+
 > **FactoryManager** é uma API REST desenvolvida em **ASP.NET Core (.NET 9)** com foco em demonstrar boas práticas de desenvolvimento backend utilizadas no mercado. O projeto vai além de um CRUD tradicional, aplicando conceitos de arquitetura em camadas, Clean Code, SOLID e padrões de projeto para construir uma base escalável e de fácil manutenção.
 >
 > Este é um projeto de estudo incremental: novas funcionalidades são adicionadas continuamente, sempre priorizando a solidez arquitetural antes da expansão de escopo.
+
+---
+
+# 🌐 Demo ao vivo
+
+A API está publicada e acessível publicamente:
+
+```
+https://factorymanager-api.onrender.com
+```
+
+Exemplo rápido:
+
+```
+GET https://factorymanager-api.onrender.com/machines
+```
+
+**Duas coisas importantes sobre esse ambiente de demonstração:**
+
+* **Cold start**: hospedado no tier gratuito do Render, que desliga a instância após períodos de inatividade. A primeira requisição depois de um tempo parado pode levar até ~1 minuto para responder, enquanto o serviço "acorda". Requisições seguintes respondem normalmente.
+* **Autenticação**: rotas de leitura (`GET`) são públicas. Rotas de escrita (`POST`, `PUT`, `DELETE`) exigem um header `X-Api-Key` — não incluído aqui por segurança. O banco pode ser reiniciado periodicamente.
 
 ---
 
@@ -12,16 +35,45 @@
 * C#
 * Minimal API
 * Entity Framework Core 9
-* SQL Server (MSSQLLocalDB)
+* SQL Server / Azure SQL Database
 * FluentValidation
 * Swagger / OpenAPI (Swashbuckle)
 * Dependency Injection
 * xUnit, Moq, FluentAssertions (testes)
+* Docker
+* GitHub Actions (CI)
+* Render (hospedagem da API)
+* Azure SQL Database (banco de dados gerenciado)
 * Git & GitHub
 
 ---
 
-# 🏛 Arquitetura
+# ☁️ Arquitetura de deploy
+
+```text
+GitHub (push na main)
+        │
+        ▼
+GitHub Actions ── build + dotnet test
+        │ (só segue se os testes passarem)
+        ▼
+Render ── build da imagem Docker + deploy automático
+        │
+        ▼
+Azure SQL Database (banco gerenciado, free tier)
+```
+
+Todo push na branch `main` dispara automaticamente:
+
+1. **Build** da solution completa.
+2. **Execução dos 7 testes automatizados** (unitários + integração). Se algum teste falhar, o pipeline para aqui.
+3. Só então o **Render** builda a imagem Docker (a partir do `Dockerfile` na raiz) e publica a nova versão.
+
+A API se conecta a um **Azure SQL Database** (Serverless, free tier) hospedado separadamente — o container da API em si não guarda nenhum dado, é totalmente stateless.
+
+---
+
+# 🏛 Arquitetura da aplicação
 
 O projeto segue uma arquitetura em camadas, onde cada camada possui uma responsabilidade bem definida.
 
@@ -38,7 +90,7 @@ FactoryManager.Domain
 FactoryManager.Infrastructure
         │
         ▼
-SQL Server
+SQL Server / Azure SQL Database
 ```
 
 ## API
@@ -117,6 +169,7 @@ O domínio foi desenhado para um sistema completo de gerenciamento de fábrica (
 * Ordenação dinâmica
 * DTOs para entrada e saída
 * Mapeamento entre entidades e DTOs
+* Proteção por API Key nas rotas de escrita (`POST`, `PUT`, `DELETE`)
 
 ---
 
@@ -195,6 +248,56 @@ Para rodar os testes:
 dotnet test
 ```
 
+Os mesmos testes rodam automaticamente em todo push, via GitHub Actions (veja seção de CI/CD abaixo).
+
+---
+
+# 🔄 CI/CD
+
+O projeto usa **GitHub Actions** para integração contínua. O workflow (`.github/workflows/ci.yml`) roda em todo push ou Pull Request para a `main`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - run: dotnet test --no-build --configuration Release --verbosity normal
+```
+
+O deploy no **Render** só é acionado depois — e só continua no ar se o build e os testes passarem antes. A branch `main` é protegida: Pull Requests só podem ser mergeadas se o check `build-and-test` passar.
+
+---
+
+# 🐳 Docker
+
+A aplicação é totalmente containerizada.
+
+```bash
+# Build da imagem
+docker build -t factorymanager-api .
+
+# Rodar localmente com banco SQL Server em container
+docker compose up --build
+```
+
+O `docker-compose.yml` sobe a API junto com uma instância local de SQL Server (útil para desenvolvimento sem depender de LocalDB). Em produção (Render), a API se conecta a um Azure SQL Database externo em vez de um SQL Server em container.
+
+As migrations do Entity Framework são aplicadas automaticamente no startup da aplicação (`Database.Migrate()` no `Program.cs`), exceto em ambiente de teste, onde o schema é criado diretamente a partir do modelo (`EnsureCreated()`), evitando dependência de histórico de migrations nos testes.
+
 ---
 
 # 📂 Estrutura do projeto
@@ -204,6 +307,7 @@ FactoryManager
 │
 ├── FactoryManager.API
 │   ├── Endpoints
+│   ├── Filters
 │   ├── Middleware
 │   └── Extensions
 │
@@ -229,11 +333,15 @@ FactoryManager
 │   ├── Repositories
 │   └── Migrations
 │
-└── FactoryManager.Tests
-    ├── Builders
-    ├── Infrastructure
-    ├── Services
-    └── Integration
+├── FactoryManager.Tests
+│   ├── Builders
+│   ├── Infrastructure
+│   ├── Services
+│   └── Integration
+│
+└── .github
+    └── workflows
+        └── ci.yml
 ```
 
 ---
@@ -257,6 +365,9 @@ FactoryManager
 * Paginação reutilizável
 * Tratamento global de exceções
 * Testes unitários e de integração automatizados
+* Containerização com Docker
+* Integração contínua (CI) com GitHub Actions
+* Deploy em nuvem com banco de dados gerenciado
 
 ---
 
@@ -264,13 +375,13 @@ FactoryManager
 
 ## Machines
 
-| Método | Endpoint         | Descrição                    |
-| ------ | ---------------- | ----------------------------- |
-| GET    | `/machines`      | Lista máquinas com paginação  |
-| GET    | `/machines/{id}` | Obtém uma máquina pelo ID     |
-| POST   | `/machines`      | Cria uma nova máquina         |
-| PUT    | `/machines/{id}` | Atualiza uma máquina          |
-| DELETE | `/machines/{id}` | Remove uma máquina            |
+| Método | Endpoint         | Descrição                    | Autenticação |
+| ------ | ---------------- | ----------------------------- | ------------- |
+| GET    | `/machines`      | Lista máquinas com paginação  | Não |
+| GET    | `/machines/{id}` | Obtém uma máquina pelo ID     | Não |
+| POST   | `/machines`      | Cria uma nova máquina         | `X-Api-Key` |
+| PUT    | `/machines/{id}` | Atualiza uma máquina          | `X-Api-Key` |
+| DELETE | `/machines/{id}` | Remove uma máquina            | `X-Api-Key` |
 
 ---
 
@@ -314,7 +425,30 @@ Resposta:
 
 ---
 
-# ▶️ Como executar o projeto
+# ▶️ Como executar o projeto localmente
+
+## Opção 1 — Docker (recomendado)
+
+## Pré-requisitos
+
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+## Passos
+
+```bash
+git clone https://github.com/GideanMS/FactoryManager.git
+cd FactoryManager
+
+# Cria um arquivo .env na raiz com:
+# SA_PASSWORD=SuaSenhaForte123!
+# API_KEY=sua-chave-local
+
+docker compose up --build
+```
+
+A API sobe em `http://localhost:8080`.
+
+## Opção 2 — .NET local, sem Docker
 
 ## Pré-requisitos
 
@@ -324,25 +458,17 @@ Resposta:
 ## Passos
 
 ```bash
-# Clonar o repositório
 git clone https://github.com/GideanMS/FactoryManager.git
 cd FactoryManager
 
-# Restaurar dependências
 dotnet restore
 
-# Aplicar as migrations e criar o banco de dados
 dotnet ef database update --project FactoryManager.Infrastructure --startup-project FactoryManager.API
 
-# Rodar a API
 dotnet run --project FactoryManager.API
 ```
 
-A API sobe em `https://localhost:7171` (ou `http://localhost:5122`). O Swagger fica disponível em:
-
-```
-https://localhost:7171/swagger
-```
+A API sobe em `https://localhost:7171` (ou `http://localhost:5122`). O Swagger fica disponível em `https://localhost:7171/swagger` (apenas em ambiente `Development`).
 
 > A string de conexão padrão usa SQL Server LocalDB (`appsettings.json`). Se estiver usando outra instância de SQL Server, ajuste `ConnectionStrings:DefaultConnection` antes de rodar as migrations.
 
@@ -360,6 +486,9 @@ https://localhost:7171/swagger
 * [x] Ordenação dinâmica
 * [x] Testes Unitários
 * [x] Testes de Integração
+* [x] Docker
+* [x] Deploy (Render + Azure SQL Database)
+* [x] CI/CD (GitHub Actions)
 * [ ] ProblemDetails
 * [ ] CRUD de Produtos
 * [ ] CRUD de Recursos
@@ -368,9 +497,6 @@ https://localhost:7171/swagger
 * [ ] JWT Authentication
 * [ ] Refresh Token
 * [ ] Roles e Authorization
-* [x] Docker
-* [ ] Deploy (Azure / Railway)
-* [ ] CI/CD (GitHub Actions)
 
 ---
 
@@ -378,4 +504,4 @@ https://localhost:7171/swagger
 
 O FactoryManager está sendo desenvolvido incrementalmente, buscando aplicar boas práticas de engenharia de software à medida que novas funcionalidades são adicionadas. Cada implementação prioriza organização, reutilização de código e separação de responsabilidades antes da expansão das funcionalidades.
 
-Esse repositório representa minha evolução no desenvolvimento backend com .NET e serve como um laboratório para estudar padrões arquiteturais e tecnologias amplamente utilizadas no mercado.
+Esse repositório representa minha evolução no desenvolvimento backend com .NET e serve como um laboratório para estudar padrões arquiteturais e tecnologias amplamente utilizadas no mercado, incluindo containerização, deploy em nuvem e integração contínua.
