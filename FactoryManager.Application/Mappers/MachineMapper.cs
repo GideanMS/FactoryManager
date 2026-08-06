@@ -10,7 +10,11 @@ public static class MachineMapper
             Id = machine.Id,
             Name = machine.Name,
             ProductionPerMinute = machine.ProductionPerMinute,
-            IsActive = machine.IsActive
+            Status = machine.Status.ToString(),
+            MaxProductionPerMinute = machine.MaxProductionPerMinute,
+            EnergyConsumptionPerMinute = machine.EnergyConsumptionPerMinute,
+            LastMaintenanceAt = machine.LastMaintenanceAt,
+            MaintenanceIntervalInDays = machine.MaintenanceIntervalInDays,
         };
     }
 }

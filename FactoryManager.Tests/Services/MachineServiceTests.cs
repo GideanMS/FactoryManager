@@ -2,6 +2,7 @@ using FactoryManager.Application.DTOs.Machines;
 using FactoryManager.Application.Interfaces;
 using FactoryManager.Application.Services;
 using FactoryManager.Domain.Entities;
+using FactoryManager.Domain.Exceptions;
 using FactoryManager.Tests.Builders;
 using FluentAssertions;
 using FluentValidation;
@@ -31,14 +32,14 @@ public class MachineServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Id.Should().Be(machine.Id);
+        result!.Id.Should().Be(machine.Id);
         result.Name.Should().Be(machine.Name);
         result.ProductionPerMinute.Should().Be(machine.ProductionPerMinute);
-        result.IsActive.Should().Be(machine.IsActive);
+        result.Status.Should().Be(machine.Status.ToString());
     }
 
     [Fact]
-    public async Task GetMachineById_ShouldReturnNull_WhenMachineDoesNotExist()
+    public async Task GetMachineById_ShouldThrowNotFound_WhenMachineDoesNotExist()
     {
         // Arrange
         var machineId = Guid.NewGuid();
@@ -52,10 +53,9 @@ public class MachineServiceTests
         var service = new MachineService(repositoryMock.Object, createValidatorMock.Object, updateValidatorMock.Object);
 
         // Act
-        var result = await service.GetByIdAsync(machineId);
-
+        Func<Task> act = async () => await service.GetByIdAsync(machineId);
         // Assert
-        result.Should().BeNull();
+        await act.Should().ThrowAsync<NotFoundException>();
     }
 
     [Fact]
@@ -65,7 +65,10 @@ public class MachineServiceTests
         var request = new CreateMachineRequest
         {
             Name = "New Machine",
-            ProductionPerMinute = 100
+            ProductionPerMinute = 80,
+            MaxProductionPerMinute = 100,
+            EnergyConsumptionPerMinute = 15,
+            MaintenanceIntervalInDays = 30
         };
 
         var repositoryMock = new Mock<IMachineRepository>();

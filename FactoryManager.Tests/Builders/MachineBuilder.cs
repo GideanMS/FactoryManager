@@ -4,16 +4,12 @@ namespace FactoryManager.Tests.Builders;
 
 public class MachineBuilder
 {
-    private Guid _id = Guid.NewGuid();
     private string _name = "Steel Furnace";
     private int _productionPerMinute = 50;
+    private int _maxProductionPerMinute = 100;
+    private decimal _energyConsumptionPerMinute = 10;
+    private int _maintenanceIntervalInDays = 30;
     private bool _isActive = true;
-
-    public MachineBuilder WithId(Guid id)
-    {
-        _id = id;
-        return this;
-    }
 
     public MachineBuilder WithName(string name)
     {
@@ -27,6 +23,24 @@ public class MachineBuilder
         return this;
     }
 
+    public MachineBuilder WithMaxProductionPerMinute(int maxProductionPerMinute)
+    {
+        _maxProductionPerMinute = maxProductionPerMinute;
+        return this;
+    }
+
+    public MachineBuilder WithEnergyConsumptionPerMinute(decimal energyConsumptionPerMinute)
+    {
+        _energyConsumptionPerMinute = energyConsumptionPerMinute;
+        return this;
+    }
+
+    public MachineBuilder WithMaintenanceIntervalInDays(int maintenanceIntervalInDays)
+    {
+        _maintenanceIntervalInDays = maintenanceIntervalInDays;
+        return this;
+    }
+
     public MachineBuilder Active()
     {
         _isActive = true;
@@ -35,7 +49,12 @@ public class MachineBuilder
 
     public Machine Build()
     {
-        var machine = new Machine(_name, _productionPerMinute);
+        var machine = new Machine(
+            _name,
+            _productionPerMinute,
+            _maxProductionPerMinute,
+            _energyConsumptionPerMinute,
+            _maintenanceIntervalInDays);
 
         if (_isActive)
             machine.Activate();

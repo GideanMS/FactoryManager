@@ -11,9 +11,9 @@ public static class MachineQueryableExtensions
             query = query.Where(machine => machine.Name.Contains(parameters.Name));
         }
 
-        if (parameters.IsActive.HasValue)
+        if (parameters.Status.HasValue)
         {
-            query = query.Where(machine => machine.IsActive == parameters.IsActive.Value);
+            query = query.Where(machine => machine.Status == parameters.Status.Value);
         }
 
         if (parameters.MinProduction.HasValue)

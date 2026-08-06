@@ -8,7 +8,7 @@ public static class MachineSortExpressions
     public static readonly Dictionary<string, Expression<Func<Machine, object>>> SortExpressions = new()
     {
         ["name"] = machine => machine.Name,
-        ["isActive"] = machine => machine.IsActive,
+        ["status"] = machine => machine.Status,
         ["production"] = machine => machine.ProductionPerMinute
     };
 }

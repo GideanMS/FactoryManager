@@ -38,6 +38,9 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>,
         {
             Name = "Steel Furnace",
             ProductionPerMinute = 50,
+            MaxProductionPerMinute = 100,
+            EnergyConsumptionPerMinute = 15,
+            MaintenanceIntervalInDays = 30
         };
 
         // Act
@@ -58,7 +61,10 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>,
         var request = new CreateMachineRequest
         {
             Name = "",
-            ProductionPerMinute = -10
+            ProductionPerMinute = 80,
+            MaxProductionPerMinute = 100,
+            EnergyConsumptionPerMinute = 15,
+            MaintenanceIntervalInDays = 30
         };
 
         // Act
@@ -76,7 +82,10 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>,
         await _client.PostAsJsonAsync("/machines", new CreateMachineRequest
         {
             Name = "Steel Furnace",
-            ProductionPerMinute = 50
+            ProductionPerMinute = 80,
+            MaxProductionPerMinute = 100,
+            EnergyConsumptionPerMinute = 15,
+            MaintenanceIntervalInDays = 30
         });
 
         var getResponse = await _client.GetAsync("/machines?Page=1&PageSize=10");

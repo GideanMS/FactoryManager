@@ -20,6 +20,11 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Resource not found.");
+            await HandleExceptionAsync(context, ex.Message, StatusCodes.Status404NotFound);
+        }
         catch (DomainException ex)
         {
             _logger.LogWarning(ex, "Domain exception occurred.");

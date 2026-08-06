@@ -24,8 +24,6 @@ public static class MachineEndpoints
         {
             var machine = await machineService.GetByIdAsync(id);
 
-            if (machine is null)
-                return Results.NotFound();
 
             return Results.Ok(machine);
         })
@@ -59,9 +57,6 @@ public static class MachineEndpoints
         {
             var machine = await machineService.UpdateAsync(id, request);
 
-            if (machine is null)
-                return Results.NotFound();
-
             return Results.Ok(machine);
         })
         .WithName("UpdateMachine")
@@ -74,17 +69,73 @@ public static class MachineEndpoints
 
         app.MapDelete("/machines/{id:guid}", async (Guid id, IMachineService machineService) =>
         {
-            var deleted = await machineService.DeleteAsync(id);
-
-            if (!deleted)
-                return Results.NotFound();
-
+            await machineService.DeleteAsync(id);
             return Results.NoContent();
         })
         .WithName("DeleteMachine")
         .WithSummary("Deletes a machine by its ID")
         .WithDescription("Deletes a machine from the database using its unique identifier")
         .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
+        
+        app.MapPatch("/machines/{id:guid}/activate", async (Guid id, IMachineService machineService) =>
+        {
+            var machine = await machineService.ActivateAsync(id);
+
+            return Results.Ok(machine);
+        })
+        .WithName("ActivateMachine")
+        .WithSummary("Activates a machine")
+        .WithDescription("Activates a machine, changing its status to running")
+        .Produces<MachineResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
+
+        app.MapPatch("/machines/{id:guid}/deactivate", async (Guid id, IMachineService machineService) =>
+        {
+            var machine = await machineService.DeactivateAsync(id);
+
+            return Results.Ok(machine);
+        })
+        .WithName("DeactivateMachine")
+        .WithSummary("Deactivates a machine")
+        .WithDescription("Deactivates a machine, changing its status to offline")
+        .Produces<MachineResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
+
+        app.MapPatch("/machines/{id:guid}/start-maintenance", async (Guid id, IMachineService machineService) =>
+        {
+            var machine = await machineService.StartMaintenanceAsync(id);
+
+            return Results.Ok(machine);
+        })
+        .WithName("StartMaintenance")
+        .WithSummary("Starts maintenance for a machine")
+        .WithDescription("Initiates maintenance for a machine, changing its status to under maintenance")
+        .Produces<MachineResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError)
+        .RequireApiKey();
+
+        app.MapPatch("/machines/{id:guid}/complete-maintenance", async (Guid id, IMachineService machineService) =>
+        {
+            var machine = await machineService.CompleteMaintenanceAsync(id);
+
+            return Results.Ok(machine);
+        })
+        .WithName("CompleteMaintenance")
+        .WithSummary("Completes maintenance for a machine")
+        .WithDescription("Completes maintenance for a machine, changing its status to active")
+        .Produces<MachineResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status500InternalServerError)
         .RequireApiKey();

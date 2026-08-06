@@ -28,7 +28,7 @@ public class MachineService : IMachineService
         if (!validationResult.IsValid)
             throw new DomainException(validationResult.Errors.First().ErrorMessage);
 
-        var machine = new Machine(request.Name, request.ProductionPerMinute);
+        var machine = new Machine(request.Name, request.ProductionPerMinute, request.MaxProductionPerMinute, request.EnergyConsumptionPerMinute, request.MaintenanceIntervalInDays);
 
         await _repository.AddAsync(machine);
         await _repository.SaveChangesAsync();
@@ -41,7 +41,7 @@ public class MachineService : IMachineService
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-            return null;
+            throw new NotFoundException("Machine not found.");
 
         return MachineMapper.ToResponse(machine);
     }
@@ -51,14 +51,66 @@ public class MachineService : IMachineService
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-            throw new DomainException("Machine not found.");
+            throw new NotFoundException("Machine not found.");
 
         var validationResult = await _updateValidator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
             throw new DomainException(validationResult.Errors.First().ErrorMessage);
 
-        machine.UpdateInformation(request.Name, request.ProductionPerMinute);
+        machine.UpdateInformation(request.Name, request.ProductionPerMinute, request.MaxProductionPerMinute, request.EnergyConsumptionPerMinute, request.MaintenanceIntervalInDays);
+        await _repository.SaveChangesAsync();
+
+        return MachineMapper.ToResponse(machine);
+    }
+
+    public async Task<MachineResponse> ActivateAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+            throw new NotFoundException("Machine not found.");
+
+        machine.Activate();
+        await _repository.SaveChangesAsync();
+
+        return MachineMapper.ToResponse(machine);
+    }
+
+    public async Task<MachineResponse> DeactivateAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+            throw new NotFoundException("Machine not found.");
+
+        machine.Deactivate();
+        await _repository.SaveChangesAsync();
+
+        return MachineMapper.ToResponse(machine);
+    }
+
+    public async Task<MachineResponse> CompleteMaintenanceAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+            throw new NotFoundException("Machine not found.");
+
+        machine.CompleteMaintenance();
+        await _repository.SaveChangesAsync();
+
+        return MachineMapper.ToResponse(machine);
+    }
+
+    public async Task<MachineResponse> StartMaintenanceAsync(Guid id)
+    {
+        var machine = await _repository.GetByIdAsync(id);
+
+        if (machine is null)
+            throw new NotFoundException("Machine not found.");
+
+        machine.StartMaintenance();
         await _repository.SaveChangesAsync();
 
         return MachineMapper.ToResponse(machine);
@@ -71,16 +123,17 @@ public class MachineService : IMachineService
         return PagedMachines.Map(MachineMapper.ToResponse);
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         var machine = await _repository.GetByIdAsync(id);
 
         if (machine is null)
-            return false;
+            throw new NotFoundException("Machine not found.");
+
+        if (machine.Status == MachineStatus.Running)
+            throw new DomainException("Cannot delete a running machine.");
         
         _repository.Remove(machine);
         await _repository.SaveChangesAsync();
-
-        return true;
     }
 }
