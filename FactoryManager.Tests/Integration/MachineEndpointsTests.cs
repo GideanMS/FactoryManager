@@ -18,6 +18,7 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>,
     {
         _factory = factory;
         _client = factory.CreateClient();
+        _client.DefaultRequestHeaders.Add("X-Api-Key", "test-api-key");
     }
 
     public async Task InitializeAsync()
