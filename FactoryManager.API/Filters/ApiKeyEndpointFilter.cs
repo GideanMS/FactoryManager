@@ -10,7 +10,7 @@ public class ApiKeyEndpointFilter : IEndpointFilter
         var expectedApiKey = config["ApiKey"];
 
         if(string.IsNullOrWhiteSpace(expectedApiKey))
-            return await next(context);
+            return Results.Problem("API key is not configured on the server.", statusCode: StatusCodes.Status500InternalServerError);
 
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var provideKey) || provideKey != expectedApiKey)
             return Results.Unauthorized();
