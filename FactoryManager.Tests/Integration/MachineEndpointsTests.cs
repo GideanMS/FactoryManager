@@ -185,7 +185,7 @@ public class MachineEndpointsTests : IClassFixture<CustomWebApplicationFactory>,
         var updateRequest = new UpdateMachineRequest
         {
             Name = "Updated Furnace",
-            ProductionPerMinute = 50,
+            ProductionPerMinute = 150,
             MaxProductionPerMinute = 100,
             EnergyConsumptionPerMinute = 20,
             MaintenanceIntervalInDays = 25
