@@ -34,14 +34,9 @@ public class Machine
     public void Activate()
     {
         if (Status == MachineStatus.Maintenance)
-        {
             throw new DomainException("Cannot activate a machine under maintenance.");
-        }
-
         if (LastMaintenanceAt?.AddDays(MaintenanceIntervalInDays) < DateTime.UtcNow)
-        {
             throw new DomainException("Machine requires maintenance before activation.");
-        }
 
         Status = MachineStatus.Running;
     }
@@ -49,20 +44,24 @@ public class Machine
     public void Deactivate()
     {
         if (Status == MachineStatus.Maintenance)
-        {
             throw new DomainException("Cannot deactivate a machine under maintenance.");
-        }
 
         Status = MachineStatus.Offline;
     }
 
     public void StartMaintenance()
     {
+        if (Status == MachineStatus.Maintenance)
+            throw new DomainException("Machine is already under maintenance.");
+
         Status = MachineStatus.Maintenance;
     }
 
     public void CompleteMaintenance()
     {
+        if (Status != MachineStatus.Maintenance)
+            throw new DomainException("Machine is not under maintenance.");
+
         LastMaintenanceAt = DateTime.UtcNow;
         Status = MachineStatus.Offline;
     }
@@ -80,30 +79,16 @@ public class Machine
     private static void Validate(string name, int productionPerMinute, int maxProductionPerMinute, decimal energyConsumptionPerMinute, int maintenanceIntervalInDays)
     {
         if (string.IsNullOrWhiteSpace(name))
-        {
             throw new DomainException("Machine name cannot be empty.");
-        }
-
-        if (productionPerMinute < 0)
-        {
-            throw new DomainException("Production per minute cannot be negative.");
-        }
-
-        if (productionPerMinute > maxProductionPerMinute)
-        {
-            throw new DomainException("Production per minute cannot exceed the maximum production limit.");
-        }
         if (maxProductionPerMinute < 0)
-        {
             throw new DomainException("Max production per minute cannot be negative.");
-        }
+        if (productionPerMinute < 0)
+            throw new DomainException("Production per minute cannot be negative.");
+        if (productionPerMinute > maxProductionPerMinute)
+            throw new DomainException("Production per minute cannot exceed the maximum production limit.");
         if (energyConsumptionPerMinute < 0)
-        {
             throw new DomainException("Energy consumption per minute cannot be negative.");
-        }
         if (maintenanceIntervalInDays < 0)
-        {
             throw new DomainException("Maintenance interval in days cannot be negative.");
-        }
     }
 }
