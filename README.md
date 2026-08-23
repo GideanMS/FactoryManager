@@ -66,7 +66,7 @@ Azure SQL Database (banco gerenciado, free tier)
 Todo push na branch `main` dispara automaticamente:
 
 1. **Build** da solution completa.
-2. **Execução dos 7 testes automatizados** (unitários + integração). Se algum teste falhar, o pipeline para aqui.
+2. **Execução dos 28 testes automatizados** (unitários + integração). Se algum teste falhar, o pipeline para aqui.
 3. Só então o **Render** builda a imagem Docker (a partir do `Dockerfile` na raiz) e publica a nova versão.
 
 A API se conecta a um **Azure SQL Database** (Serverless, free tier) hospedado separadamente — o container da API em si não guarda nenhum dado, é totalmente stateless.
